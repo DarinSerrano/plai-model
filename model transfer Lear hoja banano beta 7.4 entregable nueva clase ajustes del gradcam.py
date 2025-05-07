@@ -39,10 +39,8 @@ class_names_original = ['Banana Black Sigatoka Disease',
                         'Banana Panama Disease',
                         'Banana Yellow Sigatoka Disease',
                         'No Banana']  # Agrega la nueva clase
-
 class_names_for_paths = [name.replace(' ', '_') for name in class_names_original]
 class_names_readable = class_names_original
-
 def crear_directorios():
     """Crea los directorios para entrenamiento, validación y prueba si no existen."""
     os.makedirs(train_dir, exist_ok=True)
@@ -52,7 +50,6 @@ def crear_directorios():
         os.makedirs(os.path.join(train_dir, class_name), exist_ok=True)
         os.makedirs(os.path.join(validation_dir, class_name), exist_ok=True)
         os.makedirs(os.path.join(test_dir, class_name), exist_ok=True)
-
 def dividir_datos(original_data_dir, train_dir, validation_dir, test_dir, train_ratio=0.7, val_ratio=0.2, test_ratio=0.1, random_seed=42):
     """Divide las imágenes en conjuntos de entrenamiento, validación y prueba."""
     random.seed(random_seed)
