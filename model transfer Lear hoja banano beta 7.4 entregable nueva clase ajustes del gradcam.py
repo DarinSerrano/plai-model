@@ -86,18 +86,16 @@ def cargar_y_preprocesar_datos(train_dir, validation_dir, test_dir, image_size, 
     """Carga y preprocesa los datos utilizando ImageDataGenerator."""
     train_datagen = ImageDataGenerator(
         rescale=1./255,
-        rotation_range=40,    # cambio de 30 a 40 grados 7.4.2
-        width_shift_range=0.3, # cambio de 0.25 a 0.3 7.4.2
-        height_shift_range=0.3, # cambio de 0.25 a 0.3 7.4.2
-        shear_range=0.3, # cambio de 0.2 a 0.3 7.4.2
-        zoom_range=0.3, # cambio de 0.2 a 0.3 7.4.2
+        rotation_range=40,                                                                         # cambio de 30 a 40 grados 7.4.2
+        width_shift_range=0.3,                                                                                    # cambio de 0.25 a 0.3 7.4.2
+        height_shift_range=0.3,                                                                  # cambio de 0.25 a 0.3 7.4.2
+        shear_range=0.3,                                                                                # cambio de 0.2 a 0.3 7.4.2
+        zoom_range=0.3,                                                                                    # cambio de 0.2 a 0.3 7.4.2
         horizontal_flip=True,
-        vertical_flip=True,  # Añadido volteo vertical
-        channel_shift_range=50.0,  # nuevo agregado en 7.4.2 Variación de color
+        vertical_flip=True,                                                                               # Añadido volteo vertical
+        channel_shift_range=50.0,                                                                    # nuevo agregado en 7.4.2 Variación de color
         fill_mode='nearest',
-        brightness_range=[0.7, 1.3]  # Añadido ajuste de brillo #cambio de (0.8 a 1.2) a (0.7, 1.3 ) 7.4.2
-        # Si quisieras añadir ruido, necesitarías una función de preprocesamiento personalizada aquí.
-        # preprocessing_function=add_gaussian_noise
+        brightness_range=[0.7, 1.3]                                                                             # Añadido ajuste de brillo #cambio de (0.8 a 1.2) a (0.7, 1.3 ) 7.4.2
     )
 
     validation_datagen = ImageDataGenerator(rescale=1./255)
@@ -138,19 +136,19 @@ def cargar_y_preprocesar_datos(train_dir, validation_dir, test_dir, image_size, 
 def construir_modelo_transfer_learning(num_classes, image_size):
     """Construye el modelo de Transfer Learning con MobileNetV2."""
     base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=image_size + (3,))
-    for layer in base_model.layers[-20:]:  # Descongelar últimas 20 [-20:] capas 7.4.2
-        layer.trainable = True   # Descongelar últimas 20 capas 7.4.2 #congelado debe estar en False
+    for layer in base_model.layers[-20:]:      # Descongelar últimas 20 [-20:] capas 7.4.2
+        layer.trainable = True                                                                        # Descongelar últimas 20 capas 7.4.2 #congelado debe estar en False
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(2048, activation='relu')(x)
-    ########################################### Ajuste de Dropout y regularización L1 y L2
+                                                                                                           ########################################### Ajuste de Dropout y regularización L1 y L2
     from tensorflow.keras.regularizers import l2
-    #from tensorflow.keras.regularizers import l1
-    x = Dense(2048, activation='relu', kernel_regularizer=l2(0.0001))(x) #cambios a (0.0001) 7.4.2
-    #x = Dense(1024, activation='relu', kernel_regularizer=l1(0.001))(x)
-    x = Dropout(0.4)(x) #reducir 7.4.2 (0.4)                       # Dropout para evitar sobreajuste nomalmente 0.5
+                                                                                                                    #from tensorflow.keras.regularizers import l1
+    x = Dense(2048, activation='relu', kernel_regularizer=l2(0.0001))(x)                                            #cambios a (0.0001) 7.4.2
+                                                                                                                      #x = Dense(1024, activation='relu', kernel_regularizer=l1(0.001))(x)
+    x = Dropout(0.4)(x) #reducir 7.4.2 (0.4)                                                                       # Dropout para evitar sobreajuste nomalmente 0.5
     x = BatchNormalization()(x) #nuevo ajuste 7.4.1
-    x = Dense(512, activation='relu', kernel_regularizer=l2(0.0001))(x) #cambios a (0.0001) 7.4.2 # Nueva capa densa con regularización L2 7.4.1 (0.001)
+    x = Dense(512, activation='relu', kernel_regularizer=l2(0.0001))(x)                                                       #cambios a (0.0001) 7.4.2 # Nueva capa densa con regularización L2 7.4.1 (0.001)
     predictions = Dense(num_classes, activation='softmax')(x)
     model = Model(inputs=base_model.input, outputs=predictions)
     return model
